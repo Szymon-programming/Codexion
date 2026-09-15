@@ -8,7 +8,7 @@
 typedef struct s_arguments
 {
 	int number_of_coders;
-	long long time_to_burnout;
+	int time_to_burnout;
 	int time_to_compile;
 	int time_to_debug;
 	int time_to_refactor;

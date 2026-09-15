@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
 	}
 	// sprawdzam argumenty:
 	check_arguments(&arguments, argv);
-	printf("%d\n", arguments.number_of_coders);
-	printf("%d\n", arguments.time_to_burnout);
-	printf("%d\n", arguments.scheduler);
+	// there is end of my journey with this task with actuall knowladge
+	// now i have to learn about parralel programming.
 }
