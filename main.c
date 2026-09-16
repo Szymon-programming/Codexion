@@ -12,6 +12,6 @@ int main(int argc, char *argv[])
 	}
 	// sprawdzam argumenty:
 	check_arguments(&arguments, argv);
-	// there is end of my journey with this task with actuall knowladge
+	// there is end of my journey with this task with actuall knowleadge
 	// now i have to learn about parralel programming.
 }
