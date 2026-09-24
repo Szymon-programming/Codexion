@@ -13,24 +13,29 @@ static void init_values(t_arguments *arguments, char *argv[])
 
 static void check_arguments_cont(t_arguments *arguments, char *argv[])
 {
+	if (arguments->time_to_refactor <= 0)
+	{
+		printf("time to refactor (miliseconds) can't be less or equal 0\n");
+		exit(1);
+	}
 	if (arguments->number_of_compiles_required <= 0)
 	{
-		printf("number of required compiles can't be less or equal 0");
-		exit(0);
+		printf("number of required compiles can't be less or equal 0\n");
+		exit(1);
 	}
-	if (arguments->dongle_cooldown <= 0)
+	if (arguments->dongle_cooldown < 0)
 	{
-		printf("dongle cooldown (miliseconds) can't be less or equal 0");
-		exit(0);
+		printf("dongle cooldown (miliseconds) can't be less than 0\n");
+		exit(1);
 	}
 	if (strcmp(argv[8], "fifo") == 0)
-		arguments->scheduler = 1;
+		arguments->scheduler = FIFO;
 	else if (strcmp(argv[8], "edf") == 0)
-		arguments->scheduler = 2;
+		arguments->scheduler = EDF;
 	else
 	{
-		printf("value should be 'fifo' or 'edf'");
-		exit(0);
+		printf("value should be 'fifo' or 'edf'\n");
+		exit(1);
 	}
 }
 
@@ -39,23 +44,23 @@ void check_arguments(t_arguments *arguments, char *argv[])
 	init_values(arguments, argv);
 	if (arguments->number_of_coders <= 0)
 	{
-		printf("number of coders/dongles can't be less or equal 0");
-		exit(0);
+		printf("number of coders/dongles can't be less or equal 0\n");
+		exit(1);
 	}
 	if (arguments->time_to_burnout <= 0)
 	{
-		printf("time to burnout (miliseconds) can't be less or equal 0");
-		exit(0);
+		printf("time to burnout (miliseconds) can't be less or equal 0\n");
+		exit(1);
 	}
 	if (arguments->time_to_compile <= 0)
 	{
-		printf("time to compile (miliseconds) can't be less or equal 0");
-		exit(0);
+		printf("time to compile (miliseconds) can't be less or equal 0\n");
+		exit(1);
 	}
-	if (arguments->time_to_refactor <= 0)
+	if (arguments->time_to_debug <= 0)
 	{
-		printf("time to refactor (miliseconds) can't be less or equal 0");
-		exit(0);
+		printf("time to debug (miliseconds) can't be less or equal 0\n");
+		exit(1);
 	}
 	check_arguments_cont(arguments, argv);
 }

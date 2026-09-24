@@ -6,6 +6,12 @@
 #include <string.h>
 #include <pthread.h>
 
+typedef enum e_scheduler
+{
+	FIFO,
+	EDF
+} t_scheduler;
+
 typedef struct s_arguments
 {
 	int number_of_coders;
@@ -15,8 +21,18 @@ typedef struct s_arguments
 	int time_to_refactor;
 	int number_of_compiles_required;
 	int dongle_cooldown;
-	int scheduler;
+	t_scheduler scheduler;
 } t_arguments;
+
+typedef struct s_dongle
+{
+	int dongle_id;
+	// state mutex
+	int is_taken;
+	long cooldown_end_time;
+	// t_heap priority queue
+	// i have to rethink what to add more here
+} t_dongle;
 
 typedef struct s_coder
 {
@@ -28,16 +44,6 @@ typedef struct s_coder
 	// needs actualisation after i will get to know more about
 	// parralel programming
 } t_coder;
-
-typedef struct s_dongle
-{
-	int dongle_id;
-	// state mutex
-	int is_taken;
-	int cooldown_end_time;
-	// t_heap priority queue
-	// i have to rethink what to add more here
-} t_dongle;
 
 void check_arguments(t_arguments *arguments, char *argv[]);
 
