@@ -15,3 +15,5 @@ int main(int argc, char *argv[])
 	// there is end of my journey with this task with actuall knowleadge
 	// now i have to learn about parralel programming.
 }
+
+// read how to use debugger (like gdb), objdump

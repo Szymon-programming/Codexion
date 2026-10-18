@@ -58,6 +58,21 @@ typedef struct s_data
 	pthread_mutex_t log_mutex;	// dedicated mutex for defending of wrtining on screen with printf so that two messages never interleave on a single line
 } t_data;
 
+typedef struct s_heap_node
+{
+	int coder_id;
+	long request_time;
+	long deadline;
+} t_heap_node;
+
+typedef struct s_heap
+{
+	t_heap_node *nodes;
+	int size;
+	int capacity;
+	t_scheduler scheduler;
+} t_heap;
+
 void check_arguments(t_arguments *arguments, char *argv[]);
 
 #endif
