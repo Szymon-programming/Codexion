@@ -73,6 +73,18 @@ typedef struct s_heap
 	t_scheduler scheduler;
 } t_heap;
 
+// validator
 void check_arguments(t_arguments *arguments, char *argv[]);
+
+// heap functions for EDF and FIFO:
+int init_heap(t_heap *heap, int capacity, t_scheduler scheduler);
+void free_heap(t_heap *heap);
+void swap_nodes(t_heap_node *a, t_heap_node *b);
+int has_higher_priority(t_heap_node *a, t_heap_node *b, t_scheduler scheduler);
+void shift_up(t_heap *heap, int index);
+int heap_push(t_heap *heap, t_heap_node *node);
+t_heap_node *heap_peek(t_heap *heap);
+void shift_down(t_heap *heap, int index);
+int heap_pop(t_heap *heap);
 
 #endif
