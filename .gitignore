@@ -1,6 +1,3 @@
-#main for heap and scheduler testing
-test_main_for_heap.c
-
 # Prerequisites
 *.d
 
