@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 typedef enum e_scheduler
 {
@@ -24,6 +26,21 @@ typedef struct s_arguments
 	t_scheduler scheduler;
 } t_arguments;
 
+typedef struct s_heap_node
+{
+	int coder_id;
+	long request_time;
+	long deadline;
+} t_heap_node;
+
+typedef struct s_heap
+{
+	t_heap_node *nodes;
+	int size;
+	int capacity;
+	t_scheduler scheduler;
+} t_heap;
+
 typedef struct s_dongle
 {
 	int dongle_id;
@@ -31,7 +48,7 @@ typedef struct s_dongle
 	long cooldown_end_time;
 	pthread_mutex_t dongle_mutex;
 	pthread_cond_t dongle_cond;
-	// heap of waiting tasks, but i have to first think about heap structure
+	t_heap queue;
 } t_dongle;
 
 typedef struct s_coder
@@ -57,21 +74,6 @@ typedef struct s_data
 	pthread_mutex_t stop_mutex; // mutex defendining flag stop_simulation
 	pthread_mutex_t log_mutex;	// dedicated mutex for defending of wrtining on screen with printf so that two messages never interleave on a single line
 } t_data;
-
-typedef struct s_heap_node
-{
-	int coder_id;
-	long request_time;
-	long deadline;
-} t_heap_node;
-
-typedef struct s_heap
-{
-	t_heap_node *nodes;
-	int size;
-	int capacity;
-	t_scheduler scheduler;
-} t_heap;
 
 // validator
 void check_arguments(t_arguments *arguments, char *argv[]);

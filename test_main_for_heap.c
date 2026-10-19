@@ -20,4 +20,5 @@ int main(int argc, char *argv[])
 		heap_pop(&heap);
 	}
 	free_heap(&heap);
+	return (0);
 }
