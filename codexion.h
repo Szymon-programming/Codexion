@@ -89,4 +89,12 @@ t_heap_node *heap_peek(t_heap *heap);
 void shift_down(t_heap *heap, int index);
 int heap_pop(t_heap *heap);
 
+// time:
+long get_current_time_ms(void);
+long get_elapsed_time_ms(long start_time);
+void precise_usleep(long sleep_time_ms, t_data *data);
+
+int is_simulation_stopped(t_data *data);
+void print_log(t_coder *coder, char *status);
+
 #endif
