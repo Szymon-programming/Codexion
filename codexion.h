@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
 /*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
@@ -117,7 +117,6 @@ int			take_dongle(t_coder *coder, t_dongle *dongle);
 void		release_dongle(t_coder *coder, t_dongle *dongle);
 
 /* coders logic */
-int			check_coder_burnout(t_data *data, int i);
 int			all_coders_compiled(t_data *data);
 void		*coder_routine(void *arg);
 

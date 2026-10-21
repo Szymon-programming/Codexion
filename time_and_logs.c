@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   time_and_logs.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
 /*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
