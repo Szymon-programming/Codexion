@@ -63,11 +63,26 @@ void *coder_routine(void *arg)
 	return (NULL);
 }
 
+static int check_coder_burnout(t_data *data, int i)
+{
+	long last_compile;
+
+	pthread_mutex_lock(&data->coders[i].state_mutex);
+	last_compile = data->coders[i].last_compile_start;
+	pthread_mutex_unlock(&data->coders[i].state_mutex);
+	if (get_current_time_ms() - last_compile >= data->args.time_to_burnout)
+	{
+		print_log(&data->coders[i], "burned out");
+		set_simulation_stop(data);
+		return (1);
+	}
+	return (0);
+}
+
 void *monitor_routine(void *arg)
 {
 	t_data *data;
 	int i;
-	long last_compile;
 
 	data = (t_data *)arg;
 	while (!is_simulation_stopped(data))
@@ -75,21 +90,22 @@ void *monitor_routine(void *arg)
 		i = 0;
 		while (i < data->args.number_of_coders)
 		{
-			pthread_mutex_lock(&data->coders[i].state_mutex);
-			last_compile = data->coders[i].last_compile_start;
-			pthread_mutex_unlock(&data->coders[i].state_mutex);
-			if (get_current_time_ms() - last_compile >= data->args.time_to_burnout)
-			{
-				set_simulation_stop(data);
-				print_log(&data->coders[i], "burned out");
+			if (check_coder_burnout(data, i))
 				return (NULL);
-			}
 			i++;
+		}
+		if (all_coders_compiled(data))
+		{
+			set_simulation_stop(data);
+			return (NULL);
 		}
 		usleep(1000);
 	}
 	return (NULL);
 }
+
+// 6 functions instead of 5, I have to divide this file to 2, but i will do this when i will
+// be doing cleanup in functions
 
 int start_simulation(t_data *data)
 {

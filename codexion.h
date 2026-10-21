@@ -102,4 +102,6 @@ void select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
 int take_dongle(t_coder *coder, t_dongle *dongle);
 void release_dongle(t_coder *coder, t_dongle *dongle);
 
+int all_coders_compiled(t_data *data);
+
 #endif
