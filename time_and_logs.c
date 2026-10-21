@@ -1,5 +1,12 @@
 #include "codexion.h"
 
+static long get_elapsed_time_ms(long start_time)
+{
+	long current;
+	current = get_current_time_ms();
+	return (current - start_time);
+}
+
 long get_current_time_ms(void)
 {
 	struct timeval tv;
@@ -7,13 +14,6 @@ long get_current_time_ms(void)
 	gettimeofday(&tv, NULL);
 	sum = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	return (sum);
-}
-
-long get_elapsed_time_ms(long start_time)
-{
-	long current;
-	current = get_current_time_ms();
-	return (current - start_time);
 }
 
 int is_simulation_stopped(t_data *data)

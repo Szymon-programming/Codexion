@@ -91,24 +91,31 @@ int heap_pop(t_heap *heap);
 
 // time:
 long get_current_time_ms(void);
-long get_elapsed_time_ms(long start_time);
 void precise_usleep(long sleep_time_ms, t_data *data);
 
+// simulation
+int start_simulation(t_data *data);
 int is_simulation_stopped(t_data *data);
-void print_log(t_coder *coder, char *status);
 
 // dongles logic
 void select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
 int take_dongle(t_coder *coder, t_dongle *dongle);
 void release_dongle(t_coder *coder, t_dongle *dongle);
 
+// coders_logic
 int all_coders_compiled(t_data *data);
+void *coder_routine(void *arg);
 
+// init data
 int init_data(t_data *data);
 int init_dongles(t_data *data);
 int init_coders(t_data *data);
+
+// cleaning data before programm end
 void cleanup(t_data *data);
 
-int start_simulation(t_data *data)
+// monitor thread
+void *monitor_routine(void *arg);
+void print_log(t_coder *coder, char *status);
 
 #endif

@@ -56,23 +56,3 @@ void release_dongle(t_coder *coder, t_dongle *dongle)
 	pthread_cond_broadcast(&dongle->dongle_cond);
 	pthread_mutex_unlock(&dongle->dongle_mutex);
 }
-int all_coders_compiled(t_data *data)
-{
-	int i;
-
-	i = 0;
-	if (data->args.number_of_compiles_required <= 0)
-		return (0);
-	while (i < data->args.number_of_coders)
-	{
-		pthread_mutex_lock(&data->coders[i].state_mutex);
-		if (data->coders[i].compiles_count < data->args.number_of_compiles_required)
-		{
-			pthread_mutex_unlock(&data->coders[i].state_mutex);
-			return (0);
-		}
-		pthread_mutex_unlock(data->coders[i].state_mutex);
-		i++;
-	}
-	return (1);
-}
