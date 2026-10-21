@@ -2,18 +2,23 @@
 
 int main(int argc, char *argv[])
 {
-	t_arguments arguments;
+	t_data data;
 
-	memset(&arguments, 0, sizeof(t_arguments));
+	memset(&data.args, 0, sizeof(t_arguments));
 	if (argc != 9)
 	{
 		printf("not enought/too much arguments");
-		exit(0);
+		return (1);
 	}
-	// sprawdzam argumenty:
-	check_arguments(&arguments, argv);
-	// there is end of my journey with this task with actuall knowleadge
-	// now i have to learn about parralel programming.
+	if (!check_arguments(&data.args, argv))
+		return (1);
+	if (!init_data(&data))
+		return (1);
+	if (!init_dongles(&data))
+		return (1);
+	data.start_time = get_current_time_ms();
+	init_coders(&data);
+	start_simulation(&data);
+	cleanup(&data);
+	return (0);
 }
-
-// read how to use debugger (like gdb), objdump

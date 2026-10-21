@@ -76,7 +76,7 @@ typedef struct s_data
 } t_data;
 
 // validator
-void check_arguments(t_arguments *arguments, char *argv[]);
+int check_arguments(t_arguments *arguments, char *argv[]);
 
 // heap functions for EDF and FIFO:
 int init_heap(t_heap *heap, int capacity, t_scheduler scheduler);
@@ -103,5 +103,12 @@ int take_dongle(t_coder *coder, t_dongle *dongle);
 void release_dongle(t_coder *coder, t_dongle *dongle);
 
 int all_coders_compiled(t_data *data);
+
+int init_data(t_data *data);
+int init_dongles(t_data *data);
+int init_coders(t_data *data);
+void cleanup(t_data *data);
+
+int start_simulation(t_data *data)
 
 #endif

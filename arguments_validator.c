@@ -11,22 +11,22 @@ static void init_values(t_arguments *arguments, char *argv[])
 	arguments->dongle_cooldown = atoi(argv[7]);
 }
 
-static void check_arguments_cont(t_arguments *arguments, char *argv[])
+static int check_arguments_cont(t_arguments *arguments, char *argv[])
 {
 	if (arguments->time_to_refactor <= 0)
 	{
 		printf("time to refactor (miliseconds) can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
 	if (arguments->number_of_compiles_required <= 0)
 	{
 		printf("number of required compiles can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
 	if (arguments->dongle_cooldown < 0)
 	{
 		printf("dongle cooldown (miliseconds) can't be less than 0\n");
-		exit(1);
+		return (1);
 	}
 	if (strcmp(argv[8], "fifo") == 0)
 		arguments->scheduler = FIFO;
@@ -35,32 +35,35 @@ static void check_arguments_cont(t_arguments *arguments, char *argv[])
 	else
 	{
 		printf("value should be 'fifo' or 'edf'\n");
-		exit(1);
+		return (1);
 	}
+	return (0);
 }
 
-void check_arguments(t_arguments *arguments, char *argv[])
+int check_arguments(t_arguments *arguments, char *argv[])
 {
 	init_values(arguments, argv);
 	if (arguments->number_of_coders <= 0)
 	{
 		printf("number of coders/dongles can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
 	if (arguments->time_to_burnout <= 0)
 	{
 		printf("time to burnout (miliseconds) can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
 	if (arguments->time_to_compile <= 0)
 	{
 		printf("time to compile (miliseconds) can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
 	if (arguments->time_to_debug <= 0)
 	{
 		printf("time to debug (miliseconds) can't be less or equal 0\n");
-		exit(1);
+		return (1);
 	}
-	check_arguments_cont(arguments, argv);
+	if (check_arguments_cont(arguments, argv) == 1)
+		return (1);
+	return (0);
 }
