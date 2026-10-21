@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   arguments_validator.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
+/*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-static void init_values(t_arguments *arguments, char *argv[])
+static void	init_values(t_arguments *arguments, char *argv[])
 {
 	arguments->number_of_coders = atoi(argv[1]);
 	arguments->time_to_burnout = atoi(argv[2]);
@@ -11,7 +23,21 @@ static void init_values(t_arguments *arguments, char *argv[])
 	arguments->dongle_cooldown = atoi(argv[7]);
 }
 
-static int check_arguments_cont(t_arguments *arguments, char *argv[])
+static int	check_scheduler(t_arguments *arguments, char *argv[])
+{
+	if (strcmp(argv[8], "fifo") == 0)
+		arguments->scheduler = FIFO;
+	else if (strcmp(argv[8], "edf") == 0)
+		arguments->scheduler = EDF;
+	else
+	{
+		printf("value should be 'fifo' or 'edf'\n");
+		return (1);
+	}
+	return (0);
+}
+
+static int	check_arguments_cont(t_arguments *arguments, char *argv[])
 {
 	if (arguments->time_to_refactor <= 0)
 	{
@@ -28,19 +54,10 @@ static int check_arguments_cont(t_arguments *arguments, char *argv[])
 		printf("dongle cooldown (miliseconds) can't be less than 0\n");
 		return (1);
 	}
-	if (strcmp(argv[8], "fifo") == 0)
-		arguments->scheduler = FIFO;
-	else if (strcmp(argv[8], "edf") == 0)
-		arguments->scheduler = EDF;
-	else
-	{
-		printf("value should be 'fifo' or 'edf'\n");
-		return (1);
-	}
-	return (0);
+	return (check_scheduler(arguments, argv));
 }
 
-int check_arguments(t_arguments *arguments, char *argv[])
+int	check_arguments(t_arguments *arguments, char *argv[])
 {
 	init_values(arguments, argv);
 	if (arguments->number_of_coders <= 0)
@@ -63,7 +80,5 @@ int check_arguments(t_arguments *arguments, char *argv[])
 		printf("time to debug (miliseconds) can't be less or equal 0\n");
 		return (1);
 	}
-	if (check_arguments_cont(arguments, argv) == 1)
-		return (1);
-	return (0);
+	return (check_arguments_cont(arguments, argv));
 }

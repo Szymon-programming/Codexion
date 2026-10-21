@@ -9,6 +9,8 @@ OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
+$(OBJS): codexion.h
+
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 

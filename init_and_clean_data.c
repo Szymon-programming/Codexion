@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_and_clean_data.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
+/*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-int init_data(t_data *data)
+int	init_data(t_data *data)
 {
 	data->stop_simulation = 0;
 	data->coders = malloc(sizeof(t_coder) * data->args.number_of_coders);
@@ -17,9 +29,9 @@ int init_data(t_data *data)
 	return (1);
 }
 
-int init_dongles(t_data *data)
+int	init_dongles(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->args.number_of_coders)
@@ -28,16 +40,17 @@ int init_dongles(t_data *data)
 		data->dongles[i].is_taken = 0;
 		data->dongles[i].cooldown_end_time = 0;
 		pthread_mutex_init(&data->dongles[i].dongle_mutex, NULL);
-		pthread_mutex_init(&data->dongles[i].dongle_cond, NULL);
-		init_heap(&data->dongles[i].queue, data->args.number_of_coders, data->args.scheduler);
+		pthread_cond_init(&data->dongles[i].dongle_cond, NULL);
+		init_heap(&data->dongles[i].queue, data->args.number_of_coders,
+			data->args.scheduler);
 		i++;
 	}
 	return (1);
 }
 
-int init_coders(t_data *data)
+int	init_coders(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->args.number_of_coders)
@@ -48,15 +61,16 @@ int init_coders(t_data *data)
 		data->coders[i].data = data;
 		pthread_mutex_init(&data->coders[i].state_mutex, NULL);
 		data->coders[i].left_dongle = &data->dongles[i];
-		data->coders[i].right_dongle = &data->dongles[(i + 1) % data->args.number_of_coders];
+		data->coders[i].right_dongle
+			= &data->dongles[(i + 1) % data->args.number_of_coders];
 		i++;
 	}
 	return (1);
 }
 
-void cleanup(t_data *data)
+void	cleanup(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	pthread_mutex_destroy(&data->stop_mutex);

@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   coder.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
+/*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-static int check_coder_burnout(t_data *data, int i)
+int	check_coder_burnout(t_data *data, int i)
 {
-	long last_compile;
+	long	last_compile;
 
 	pthread_mutex_lock(&data->coders[i].state_mutex);
 	last_compile = data->coders[i].last_compile_start;
@@ -16,22 +28,14 @@ static int check_coder_burnout(t_data *data, int i)
 	return (0);
 }
 
-static int coder_compile_step(t_coder *coder)
+static int	compile_with_dongles(t_coder *coder, t_dongle *first,
+		t_dongle *second)
 {
-	t_dongle *first;
-	t_dongle *second;
-
-	select_dongle(coder, &first, &second);
-	if (!take_dongle(coder, first))
-		return (0);
-	if (coder->data->args.number_of_coders == 1)
+	if (!take_dongle(coder, second))
 	{
-		precise_usleep(coder->data->args.time_to_burnout, coder->data);
 		release_dongle(coder, first);
 		return (0);
 	}
-	if (!take_dongle(coder, second))
-		return (release_dongle(coder, first), (0));
 	pthread_mutex_lock(&coder->state_mutex);
 	coder->last_compile_start = get_current_time_ms();
 	pthread_mutex_unlock(&coder->state_mutex);
@@ -45,15 +49,32 @@ static int coder_compile_step(t_coder *coder)
 	return (1);
 }
 
-void *coder_routine(void *arg)
+static int	coder_compile_step(t_coder *coder)
 {
-	t_coder *coder;
+	t_dongle	*first;
+	t_dongle	*second;
+
+	select_dongle(coder, &first, &second);
+	if (!take_dongle(coder, first))
+		return (0);
+	if (coder->data->args.number_of_coders == 1)
+	{
+		precise_usleep(coder->data->args.time_to_burnout, coder->data);
+		release_dongle(coder, first);
+		return (0);
+	}
+	return (compile_with_dongles(coder, first, second));
+}
+
+void	*coder_routine(void *arg)
+{
+	t_coder	*coder;
 
 	coder = (t_coder *)arg;
 	while (!is_simulation_stopped(coder->data))
 	{
 		if (!coder_compile_step(coder))
-			break;
+			break ;
 		print_log(coder, "is debugging");
 		precise_usleep(coder->data->args.time_to_debug, coder->data);
 		print_log(coder, "is refactoring");
@@ -62,9 +83,9 @@ void *coder_routine(void *arg)
 	return (NULL);
 }
 
-int all_coders_compiled(t_data *data)
+int	all_coders_compiled(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (data->args.number_of_compiles_required <= 0)
@@ -72,12 +93,13 @@ int all_coders_compiled(t_data *data)
 	while (i < data->args.number_of_coders)
 	{
 		pthread_mutex_lock(&data->coders[i].state_mutex);
-		if (data->coders[i].compiles_count < data->args.number_of_compiles_required)
+		if (data->coders[i].compiles_count
+			< data->args.number_of_compiles_required)
 		{
 			pthread_mutex_unlock(&data->coders[i].state_mutex);
 			return (0);
 		}
-		pthread_mutex_unlock(data->coders[i].state_mutex);
+		pthread_mutex_unlock(&data->coders[i].state_mutex);
 		i++;
 	}
 	return (1);

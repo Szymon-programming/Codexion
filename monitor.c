@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: schoinsk <schoinsk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
+/*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
-void *monitor_routine(void *arg)
+void	*monitor_routine(void *arg)
 {
-	t_data *data;
-	int i;
+	t_data	*data;
+	int		i;
 
 	data = (t_data *)arg;
 	while (!is_simulation_stopped(data))
