@@ -97,4 +97,9 @@ void precise_usleep(long sleep_time_ms, t_data *data);
 int is_simulation_stopped(t_data *data);
 void print_log(t_coder *coder, char *status);
 
+// dongles logic
+void select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
+int take_dongle(t_coder *coder, t_dongle *dongle);
+void release_dongle(t_coder *coder, t_dongle *dongle);
+
 #endif

@@ -19,6 +19,31 @@ void set_simulation_stop(t_data *data)
 
 int coder_compile_step(t_coder *coder)
 {
+	t_dongle *first;
+	t_dongle *second;
+
+	select_dongle(coder, &first, &second);
+	if (!take_dongle(coder, first))
+		return (0);
+	if (coder->data->args.number_of_coders == 1)
+	{
+		precise_usleep(coder->data->args.time_to_burnout, coder->data);
+		release_dongle(coder, first);
+		return (0);
+	}
+	if (!take_dongle(coder, second))
+		return (release_dongle(coder, first), (0));
+	pthread_mutex_lock(&coder->state_mutex);
+	coder->last_compile_start = get_current_time_ms();
+	pthread_mutex_unlock(&coder->state_mutex);
+	print_log(coder, "is compiling");
+	precise_usleep(coder->data->args.time_to_compile, coder->data);
+	pthread_mutex_lock(&coder->state_mutex);
+	coder->compiles_count++;
+	pthread_mutex_unlock(&coder->state_mutex);
+	release_dongle(coder, second);
+	release_dongle(coder, first);
+	return (1);
 }
 
 void *coder_routine(void *arg)
@@ -28,8 +53,12 @@ void *coder_routine(void *arg)
 	coder = (t_coder *)arg;
 	while (!is_simulation_stopped(coder->data))
 	{
-		// dongles and compile logic
-		precise_usleep(1, coder->data);
+		if (!coder_compile_step(coder))
+			break;
+		print_log(coder, "is debugging");
+		precise_usleep(coder->data->args.time_to_debug, coder->data);
+		print_log(coder, "is refactoring");
+		precise_usleep(coder->data->args.time_to_refactor, coder->data);
 	}
 	return (NULL);
 }
