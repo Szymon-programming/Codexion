@@ -38,7 +38,7 @@ Run the program from the terminal with 8 mandatory arguments:
 3. **`time_to_compile` (ms):** Time required to complete a compilation.
 4. **`time_to_debug` (ms):** Time spent debugging after compilation.
 5. **`time_to_refactor` (ms):** Time spent refactoring code before the next cycle.
-6. **`number_of_compiles_required`**: Optional target. If all coders reach this number of successful compiles, the simulation stops successfully.
+6. **`number_of_compiles_required`**: If all coders reach this number of successful compiles, the simulation stops successfully.
 7. **`dongle_cooldown` (ms):** Mandatory waiting time before a released dongle can be picked up again.
 8. **`scheduler`**: The priority queue scheduling policy (`fifo` or `edf`).
 
@@ -51,7 +51,7 @@ Our solution explicitly addresses and solves all major concurrency hazards:
 - **Deadlock Prevention & Coffman’s Conditions:** To prevent circular wait conditions (the core cause of deadlocks), all coders follow a strict resource hierarchy. A coder always attempts to acquire the dongle with the lower ID (`first`) before the dongle with the higher ID (`second`). Furthermore, for a single coder (`number_of_coders == 1`), a dedicated branch handles the edge case to prevent self-deadlocks.
 - **Starvation Prevention:** Unlike naive implementations, raw mutex contention is replaced by a custom Binary Min-Heap Priority Queue assigned to each dongle. Requests are ordered strictly by **FIFO** (request timestamp) or **EDF** (burnout deadline), guaranteeing that no thread is perpetually starved.
 - **Cooldown Handling:** Dongles enforce a mandatory `dongle_cooldown` period after being released. Coders acquiring a freshly released dongle check the remaining cooldown and sleep precisely for the remainder before starting compilation.
-- **Precise Burnout Detection:** A dedicated monitor thread continuously checks whether any coder has exceeded `time_to_burnout` since their last compilation start, ensuring sub-millisecond detection accuracy without overloading the CPU.
+- **Precise Burnout Detection:** A dedicated monitor thread continuously checks whether any coder has exceeded `time_to_burnout` since their last compilation start, ensuring millisecond detection accuracy without overloading the CPU.
 - **Log Serialization:** All simulation outputs are funneled through a thread-safe logging function protected by a dedicated `log_mutex`. This prevents text interleaving and guarantees strict timestamp ordering.
 
 ---

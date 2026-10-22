@@ -11,16 +11,46 @@
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <limits.h>
 
-static void	init_values(t_arguments *arguments, char *argv[])
+static int	parse_int(char *str, int *value)
 {
-	arguments->number_of_coders = atoi(argv[1]);
-	arguments->time_to_burnout = atoi(argv[2]);
-	arguments->time_to_compile = atoi(argv[3]);
-	arguments->time_to_debug = atoi(argv[4]);
-	arguments->time_to_refactor = atoi(argv[5]);
-	arguments->number_of_compiles_required = atoi(argv[6]);
-	arguments->dongle_cooldown = atoi(argv[7]);
+	int	result;
+	int	digit;
+	int	i;
+
+	if (str[0] == '\0')
+		return (0);
+	result = 0;
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (0);
+		digit = str[i] - '0';
+		if (result > (INT_MAX - digit) / 10)
+			return (0);
+		result = result * 10 + digit;
+		i++;
+	}
+	*value = result;
+	return (1);
+}
+
+static int	parse_values(t_arguments *arguments, char *argv[])
+{
+	if (!parse_int(argv[1], &arguments->number_of_coders)
+		|| !parse_int(argv[2], &arguments->time_to_burnout)
+		|| !parse_int(argv[3], &arguments->time_to_compile)
+		|| !parse_int(argv[4], &arguments->time_to_debug)
+		|| !parse_int(argv[5], &arguments->time_to_refactor)
+		|| !parse_int(argv[6], &arguments->number_of_compiles_required)
+		|| !parse_int(argv[7], &arguments->dongle_cooldown))
+	{
+		printf("arguments must be integers from 0 to %d\n", INT_MAX);
+		return (0);
+	}
+	return (1);
 }
 
 static int	check_scheduler(t_arguments *arguments, char *argv[])
@@ -37,29 +67,10 @@ static int	check_scheduler(t_arguments *arguments, char *argv[])
 	return (0);
 }
 
-static int	check_arguments_cont(t_arguments *arguments, char *argv[])
-{
-	if (arguments->time_to_refactor <= 0)
-	{
-		printf("time to refactor (miliseconds) can't be less or equal 0\n");
-		return (1);
-	}
-	if (arguments->number_of_compiles_required <= 0)
-	{
-		printf("number of required compiles can't be less or equal 0\n");
-		return (1);
-	}
-	if (arguments->dongle_cooldown < 0)
-	{
-		printf("dongle cooldown (miliseconds) can't be less than 0\n");
-		return (1);
-	}
-	return (check_scheduler(arguments, argv));
-}
-
 int	check_arguments(t_arguments *arguments, char *argv[])
 {
-	init_values(arguments, argv);
+	if (!parse_values(arguments, argv))
+		return (1);
 	if (arguments->number_of_coders <= 0)
 	{
 		printf("number of coders/dongles can't be less or equal 0\n");
@@ -70,15 +81,10 @@ int	check_arguments(t_arguments *arguments, char *argv[])
 		printf("time to burnout (miliseconds) can't be less or equal 0\n");
 		return (1);
 	}
-	if (arguments->time_to_compile <= 0)
+	if (arguments->number_of_compiles_required <= 0)
 	{
-		printf("time to compile (miliseconds) can't be less or equal 0\n");
+		printf("number of required compiles can't be less or equal 0\n");
 		return (1);
 	}
-	if (arguments->time_to_debug <= 0)
-	{
-		printf("time to debug (miliseconds) can't be less or equal 0\n");
-		return (1);
-	}
-	return (check_arguments_cont(arguments, argv));
+	return (check_scheduler(arguments, argv));
 }
