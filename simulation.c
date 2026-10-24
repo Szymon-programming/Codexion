@@ -34,7 +34,6 @@ int	start_simulation(t_data *data)
 	int	i;
 
 	i = 0;
-	data->start_time = get_current_time_ms();
 	while (i < data->args.number_of_coders)
 	{
 		pthread_create(&data->coders[i].thread, NULL, coder_routine,
