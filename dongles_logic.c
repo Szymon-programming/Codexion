@@ -26,7 +26,7 @@ void	select_dongle(t_coder *coder, t_dongle **first, t_dongle **second)
 	}
 }
 
-static void	init_node_request(t_coder *coder, t_heap_node *node)
+void	init_node_request(t_coder *coder, t_heap_node *node)
 {
 	node->coder_id = coder->coder_id;
 	node->request_time = get_current_time_ms();
@@ -36,44 +36,17 @@ static void	init_node_request(t_coder *coder, t_heap_node *node)
 	pthread_mutex_unlock(&coder->state_mutex);
 }
 
-static int	wait_for_turn(t_coder *coder, t_dongle *dongle)
-{
-	while (!is_simulation_stopped(coder->data)
-		&& (dongle->is_taken
-			|| heap_peek(&dongle->queue)->coder_id != coder->coder_id))
-		pthread_cond_wait(&dongle->dongle_cond, &dongle->dongle_mutex);
-	return (!is_simulation_stopped(coder->data));
-}
-
-int	take_dongle(t_coder *coder, t_dongle *dongle)
-{
-	t_heap_node	node;
-	long		wait_cooldown;
-
-	init_node_request(coder, &node);
-	pthread_mutex_lock(&dongle->dongle_mutex);
-	heap_push(&dongle->queue, &node);
-	if (!wait_for_turn(coder, dongle))
-	{
-		pthread_mutex_unlock(&dongle->dongle_mutex);
-		return (0);
-	}
-	dongle->is_taken = 1;
-	heap_pop(&dongle->queue);
-	wait_cooldown = dongle->cooldown_end_time - get_current_time_ms();
-	pthread_mutex_unlock(&dongle->dongle_mutex);
-	if (wait_cooldown > 0)
-		precise_usleep(wait_cooldown, coder->data);
-	print_log(coder, "has taken a dongle");
-	return (1);
-}
-
 void	release_dongle(t_coder *coder, t_dongle *dongle)
 {
+	t_data	*data;
+
+	data = coder->data;
+	pthread_mutex_lock(&data->table_mutex);
 	pthread_mutex_lock(&dongle->dongle_mutex);
 	dongle->is_taken = 0;
 	dongle->cooldown_end_time = get_current_time_ms()
-		+ coder->data->args.dongle_cooldown;
-	pthread_cond_broadcast(&dongle->dongle_cond);
+		+ data->args.dongle_cooldown;
 	pthread_mutex_unlock(&dongle->dongle_mutex);
+	pthread_cond_broadcast(&data->table_cond);
+	pthread_mutex_unlock(&data->table_mutex);
 }

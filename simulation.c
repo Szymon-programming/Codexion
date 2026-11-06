@@ -14,19 +14,12 @@
 
 void	set_simulation_stop(t_data *data)
 {
-	int	i;
-
+	pthread_mutex_lock(&data->table_mutex);
 	pthread_mutex_lock(&data->stop_mutex);
 	data->stop_simulation = 1;
 	pthread_mutex_unlock(&data->stop_mutex);
-	i = 0;
-	while (i < data->args.number_of_coders)
-	{
-		pthread_mutex_lock(&data->dongles[i].dongle_mutex);
-		pthread_cond_broadcast(&data->dongles[i].dongle_cond);
-		pthread_mutex_unlock(&data->dongles[i].dongle_mutex);
-		i++;
-	}
+	pthread_cond_broadcast(&data->table_cond);
+	pthread_mutex_unlock(&data->table_mutex);
 }
 
 int	start_simulation(t_data *data)

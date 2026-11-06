@@ -26,6 +26,8 @@ int	init_data(t_data *data)
 	}
 	pthread_mutex_init(&data->stop_mutex, NULL);
 	pthread_mutex_init(&data->log_mutex, NULL);
+	pthread_mutex_init(&data->table_mutex, NULL);
+	pthread_cond_init(&data->table_cond, NULL);
 	return (1);
 }
 
@@ -40,7 +42,6 @@ int	init_dongles(t_data *data)
 		data->dongles[i].is_taken = 0;
 		data->dongles[i].cooldown_end_time = 0;
 		pthread_mutex_init(&data->dongles[i].dongle_mutex, NULL);
-		pthread_cond_init(&data->dongles[i].dongle_cond, NULL);
 		init_heap(&data->dongles[i].queue, data->args.number_of_coders,
 			data->args.scheduler);
 		i++;
@@ -75,10 +76,11 @@ void	cleanup(t_data *data)
 	i = 0;
 	pthread_mutex_destroy(&data->stop_mutex);
 	pthread_mutex_destroy(&data->log_mutex);
+	pthread_mutex_destroy(&data->table_mutex);
+	pthread_cond_destroy(&data->table_cond);
 	while (i < data->args.number_of_coders)
 	{
 		pthread_mutex_destroy(&data->dongles[i].dongle_mutex);
-		pthread_cond_destroy(&data->dongles[i].dongle_cond);
 		free_heap(&data->dongles[i].queue);
 		pthread_mutex_destroy(&data->coders[i].state_mutex);
 		i++;

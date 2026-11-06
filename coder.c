@@ -12,14 +12,9 @@
 
 #include "codexion.h"
 
-static int	compile_with_dongles(t_coder *coder, t_dongle *first,
+static void	compile_with_dongles(t_coder *coder, t_dongle *first,
 		t_dongle *second)
 {
-	if (!take_dongle(coder, second))
-	{
-		release_dongle(coder, first);
-		return (0);
-	}
 	pthread_mutex_lock(&coder->state_mutex);
 	coder->last_compile_start = get_current_time_ms();
 	pthread_mutex_unlock(&coder->state_mutex);
@@ -30,7 +25,6 @@ static int	compile_with_dongles(t_coder *coder, t_dongle *first,
 	pthread_mutex_unlock(&coder->state_mutex);
 	release_dongle(coder, second);
 	release_dongle(coder, first);
-	return (1);
 }
 
 static int	coder_compile_step(t_coder *coder)
@@ -39,7 +33,7 @@ static int	coder_compile_step(t_coder *coder)
 	t_dongle	*second;
 
 	select_dongle(coder, &first, &second);
-	if (!take_dongle(coder, first))
+	if (!take_dongles(coder, first, second))
 		return (0);
 	if (coder->data->args.number_of_coders == 1)
 	{
@@ -47,7 +41,8 @@ static int	coder_compile_step(t_coder *coder)
 		release_dongle(coder, first);
 		return (0);
 	}
-	return (compile_with_dongles(coder, first, second));
+	compile_with_dongles(coder, first, second);
+	return (1);
 }
 
 void	*coder_routine(void *arg)

@@ -59,7 +59,6 @@ typedef struct s_dongle
 	int				is_taken;
 	long			cooldown_end_time;
 	pthread_mutex_t	dongle_mutex;
-	pthread_cond_t	dongle_cond;
 	t_heap			queue;
 }	t_dongle;
 
@@ -85,6 +84,8 @@ typedef struct s_data
 	int				stop_simulation;
 	pthread_mutex_t	stop_mutex;
 	pthread_mutex_t	log_mutex;
+	pthread_mutex_t	table_mutex;
+	pthread_cond_t	table_cond;
 }	t_data;
 
 /* validator */
@@ -101,6 +102,7 @@ int			heap_push(t_heap *heap, t_heap_node *node);
 t_heap_node	*heap_peek(t_heap *heap);
 void		shift_down(t_heap *heap, int index);
 int			heap_pop(t_heap *heap);
+int			heap_remove(t_heap *heap, int coder_id);
 
 /* time */
 long		get_current_time_ms(void);
@@ -113,7 +115,10 @@ void		set_simulation_stop(t_data *data);
 
 /* dongles logic */
 void		select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
-int			take_dongle(t_coder *coder, t_dongle *dongle);
+void		init_node_request(t_coder *coder, t_heap_node *node);
+int			take_dongles(t_coder *coder, t_dongle *first, t_dongle *second);
+int			can_take(t_data *data, t_heap_node *me, t_dongle *first,
+				t_dongle *second);
 void		release_dongle(t_coder *coder, t_dongle *dongle);
 
 /* coders logic */

@@ -61,3 +61,22 @@ int	has_higher_priority(t_heap_node *a, t_heap_node *b, t_scheduler scheduler)
 	}
 	return (0);
 }
+
+int	heap_remove(t_heap *heap, int coder_id)
+{
+	int	i;
+
+	i = 0;
+	while (i < heap->size && heap->nodes[i].coder_id != coder_id)
+		i++;
+	if (i == heap->size)
+		return (0);
+	heap->size -= 1;
+	if (i != heap->size)
+	{
+		heap->nodes[i] = heap->nodes[heap->size];
+		shift_up(heap, i);
+		shift_down(heap, i);
+	}
+	return (1);
+}

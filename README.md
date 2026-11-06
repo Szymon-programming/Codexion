@@ -48,9 +48,9 @@ Run the program from the terminal with 8 mandatory arguments:
 
 Our solution explicitly addresses and solves all major concurrency hazards:
 
-- **Deadlock Prevention & Coffman’s Conditions:** To prevent circular wait conditions (the core cause of deadlocks), all coders follow a strict resource hierarchy. A coder always attempts to acquire the dongle with the lower ID (`first`) before the dongle with the higher ID (`second`). Furthermore, for a single coder (`number_of_coders == 1`), a dedicated branch handles the edge case to prevent self-deadlocks.
-- **Starvation Prevention:** Unlike naive implementations, raw mutex contention is replaced by a custom Binary Min-Heap Priority Queue assigned to each dongle. Requests are ordered strictly by **FIFO** (request timestamp) or **EDF** (burnout deadline), guaranteeing that no thread is perpetually starved.
-- **Cooldown Handling:** Dongles enforce a mandatory `dongle_cooldown` period after being released. Coders acquiring a freshly released dongle check the remaining cooldown and sleep precisely for the remainder before starting compilation.
+- **Deadlock Prevention & Coffman’s Conditions:** A coder never holds one dongle while waiting for another. It takes both dongles of its pair in a single step, once both are free, so the hold-and-wait condition cannot occur. Dongle state is changed only under the global `table_mutex`, so no coder can take a dongle that another coder already holds. For a single coder (`number_of_coders == 1`), a dedicated branch takes the only dongle once to prevent self-deadlocks.
+- **Starvation Prevention:** Each dongle keeps a binary min-heap of pending requests ordered by **FIFO** (request timestamp) or **EDF** (burnout deadline, ties broken by coder id). A coder takes its pair only if no higher-priority waiting coder could take it right now, so the highest-priority ready coder is never overtaken. Coders whose dongles are busy do not block neighbours that can compile, so disjoint pairs compile in parallel.
+- **Cooldown Handling:** A dongle is usable only when it is free and `dongle_cooldown` has passed since its release. This is part of the eligibility check, so a coder never holds a dongle while waiting for its cooldown to end.
 - **Precise Burnout Detection:** A dedicated monitor thread continuously checks whether any coder has exceeded `time_to_burnout` since their last compilation start, ensuring millisecond detection accuracy without overloading the CPU.
 - **Log Serialization:** All simulation outputs are funneled through a thread-safe logging function protected by a dedicated `log_mutex`. This prevents text interleaving and guarantees strict timestamp ordering.
 
@@ -62,11 +62,12 @@ The implementation relies heavily on POSIX synchronization primitives to coordin
 
 - **`pthread_mutex_t`:** Used to enforce mutual exclusion across multiple scopes:
   - **State Mutexes (`state_mutex`):** Protect individual coder attributes (`last_compile_start`, `compiles_count`) against concurrent reads and writes by both the coder thread and the monitor thread.
-  - **Dongle Mutexes (`dongle_mutex`):** Protect the internal state of each dongle (`is_taken`, `cooldown_end_time`) and its priority queue (`t_heap`).
+  - **Table Mutex (`table_mutex`):** Protects the state of all dongles (`is_taken`, `cooldown_end_time`, priority queues) and the placement decisions made from it. Every coder's request is checked and granted under this single lock, so no two coders can take the same dongle.
+  - **Dongle Mutexes (`dongle_mutex`):** Protect the `is_taken` flag of each dongle when it changes. They are always taken inside `table_mutex`, so the lock order is `table_mutex` → `dongle_mutex` (lower dongle id first), then `stop_mutex`.
   - **Stop Mutex (`stop_mutex`):** Protects the global simulation termination flag (`stop_simulation`).
   - **Log Mutex (`log_mutex`):** Serializes standard output printing.
-- **`pthread_cond_t` (`dongle_cond`):** Each dongle features a condition variable coupled with its mutex. When a dongle is busy or a coder is not at the top of the priority queue, the thread invokes `pthread_cond_wait`, atomically releasing the mutex and suspending execution. This ensures 0% CPU consumption while waiting.
-- **Custom Event & Broadcast Implementation:** Upon releasing a dongle (`release_dongle`), `pthread_cond_broadcast` wakes up all waiting threads. This ensures that the thread currently at the top of the binary min-heap correctly re-evaluates its state and acquires the resource immediately. Similarly, when the monitor triggers a simulation stop, it broadcasts across all dongle condition variables to instantly awaken any sleeping threads, allowing clean exit and preventing `pthread_join` deadlocks.
+- **`pthread_cond_t` (`table_cond`):** One condition variable is coupled with `table_mutex`. A coder that cannot take its pair calls `pthread_cond_timedwait`, which atomically releases the mutex and suspends the thread, so waiting uses no CPU. The wait is capped at 1 ms because the end of a cooldown is time-based and is not signalled.
+- **Custom Event & Broadcast Implementation:** Releasing a dongle (`release_dongle`) and stopping the simulation (`set_simulation_stop`) both call `pthread_cond_broadcast` on `table_cond`, waking every waiting coder so each re-evaluates whether it can take its pair. The stop flag is set while `table_mutex` is held, so no coder can miss the wake-up and block `pthread_join`.
 
 ---
 
