@@ -28,6 +28,13 @@ static int	check_coder_burnout(t_data *data, int i)
 	return (0);
 }
 
+static void	run_dispatch(t_data *data)
+{
+	pthread_mutex_lock(&data->table_mutex);
+	dispatch(data);
+	pthread_mutex_unlock(&data->table_mutex);
+}
+
 void	*monitor_routine(void *arg)
 {
 	t_data	*data;
@@ -48,6 +55,7 @@ void	*monitor_routine(void *arg)
 			set_simulation_stop(data);
 			return (NULL);
 		}
+		run_dispatch(data);
 		usleep(1000);
 	}
 	return (NULL);

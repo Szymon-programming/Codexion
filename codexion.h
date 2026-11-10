@@ -72,6 +72,10 @@ typedef struct s_coder
 	int				compiles_count;
 	pthread_mutex_t	state_mutex;
 	struct s_data	*data;
+	t_heap_node		request;
+	int				waiting;
+	int				granted;
+	int				seen;
 }	t_coder;
 
 typedef struct s_data
@@ -117,8 +121,12 @@ void		set_simulation_stop(t_data *data);
 void		select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
 void		init_node_request(t_coder *coder, t_heap_node *node);
 int			take_dongles(t_coder *coder, t_dongle *first, t_dongle *second);
-int			can_take(t_data *data, t_heap_node *me, t_dongle *first,
-				t_dongle *second);
+void		enqueue(t_dongle *first, t_dongle *second, t_heap_node *node);
+void		dequeue(t_dongle *first, t_dongle *second, t_heap_node *node);
+void		dispatch(t_data *data);
+int			dongle_usable(t_dongle *dongle, long now);
+int			blocked_by_better(t_data *data, t_coder *coder);
+t_coder		*next_best(t_data *data);
 void		release_dongle(t_coder *coder, t_dongle *dongle);
 
 /* coders logic */
@@ -132,6 +140,8 @@ int			init_coders(t_data *data);
 
 /* cleaning data before program end */
 void		cleanup(t_data *data);
+void		destroy_dongles(t_data *data, int count);
+void		free_data(t_data *data);
 
 /* monitor thread */
 void		*monitor_routine(void *arg);

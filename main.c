@@ -27,7 +27,10 @@ int	main(int argc, char *argv[])
 	if (!init_data(&data))
 		return (1);
 	if (!init_dongles(&data))
+	{
+		free_data(&data);
 		return (1);
+	}
 	data.start_time = get_current_time_ms();
 	init_coders(&data);
 	start_simulation(&data);

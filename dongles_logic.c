@@ -47,6 +47,6 @@ void	release_dongle(t_coder *coder, t_dongle *dongle)
 	dongle->cooldown_end_time = get_current_time_ms()
 		+ data->args.dongle_cooldown;
 	pthread_mutex_unlock(&dongle->dongle_mutex);
-	pthread_cond_broadcast(&data->table_cond);
+	dispatch(data);
 	pthread_mutex_unlock(&data->table_mutex);
 }

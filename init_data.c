@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_and_clean_data.c                              :+:      :+:    :+:   */
+/*   init_data.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/07 00:08:39 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/10 11:45:46 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,13 @@ int	init_dongles(t_data *data)
 		data->dongles[i].dongle_id = i + 1;
 		data->dongles[i].is_taken = 0;
 		data->dongles[i].cooldown_end_time = 0;
+		if (!init_heap(&data->dongles[i].queue, data->args.number_of_coders,
+				data->args.scheduler))
+		{
+			destroy_dongles(data, i);
+			return (0);
+		}
 		pthread_mutex_init(&data->dongles[i].dongle_mutex, NULL);
-		init_heap(&data->dongles[i].queue, data->args.number_of_coders,
-			data->args.scheduler);
 		i++;
 	}
 	return (1);
@@ -60,6 +64,9 @@ int	init_coders(t_data *data)
 		data->coders[i].compiles_count = 0;
 		data->coders[i].last_compile_start = data->start_time;
 		data->coders[i].data = data;
+		data->coders[i].waiting = 0;
+		data->coders[i].granted = 0;
+		data->coders[i].seen = 0;
 		pthread_mutex_init(&data->coders[i].state_mutex, NULL);
 		data->coders[i].left_dongle = &data->dongles[i];
 		data->coders[i].right_dongle
@@ -67,24 +74,4 @@ int	init_coders(t_data *data)
 		i++;
 	}
 	return (1);
-}
-
-void	cleanup(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	pthread_mutex_destroy(&data->stop_mutex);
-	pthread_mutex_destroy(&data->log_mutex);
-	pthread_mutex_destroy(&data->table_mutex);
-	pthread_cond_destroy(&data->table_cond);
-	while (i < data->args.number_of_coders)
-	{
-		pthread_mutex_destroy(&data->dongles[i].dongle_mutex);
-		free_heap(&data->dongles[i].queue);
-		pthread_mutex_destroy(&data->coders[i].state_mutex);
-		i++;
-	}
-	free(data->coders);
-	free(data->dongles);
 }
