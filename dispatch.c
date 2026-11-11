@@ -6,29 +6,14 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/10 12:00:00 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/10 12:26:12 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/11 12:33:34 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	enqueue(t_dongle *first, t_dongle *second, t_heap_node *node)
-{
-	heap_push(&first->queue, node);
-	if (first != second)
-		heap_push(&second->queue, node);
-}
-
-void	dequeue(t_dongle *first, t_dongle *second, t_heap_node *node)
-{
-	heap_remove(&first->queue, node->coder_id);
-	if (first != second)
-		heap_remove(&second->queue, node->coder_id);
-}
-
 static void	grant(t_coder *coder, t_dongle *first, t_dongle *second)
 {
-	dequeue(first, second, &coder->request);
 	pthread_mutex_lock(&first->dongle_mutex);
 	first->is_taken = 1;
 	pthread_mutex_unlock(&first->dongle_mutex);
@@ -55,24 +40,37 @@ static void	try_grant(t_coder *coder, long now)
 		grant(coder, first, second);
 }
 
-void	dispatch(t_data *data)
+static void	restore_waiting(t_data *data)
 {
-	t_coder	*coder;
-	long	now;
 	int		i;
+	t_coder	*coder;
 
 	i = 0;
 	while (i < data->args.number_of_coders)
 	{
-		data->coders[i].seen = 0;
+		coder = &data->coders[i];
+		if (coder->seen && coder->waiting)
+			heap_push(&data->waiting_queue, &coder->request);
+		coder->seen = 0;
 		i++;
 	}
+}
+
+void	dispatch(t_data *data)
+{
+	t_heap_node	*top;
+	t_coder		*coder;
+	long		now;
+
 	now = get_current_time_ms();
-	coder = next_best(data);
-	while (coder != NULL)
+	top = heap_peek(&data->waiting_queue);
+	while (top != NULL)
 	{
+		coder = &data->coders[top->coder_id - 1];
+		heap_pop(&data->waiting_queue);
 		coder->seen = 1;
 		try_grant(coder, now);
-		coder = next_best(data);
+		top = heap_peek(&data->waiting_queue);
 	}
+	restore_waiting(data);
 }

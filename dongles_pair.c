@@ -6,13 +6,12 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/07 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/10 12:00:00 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/11 12:33:34 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-/* the coder only queues its request; dispatch() decides, and wakes it up */
 int	take_dongles(t_coder *coder, t_dongle *first, t_dongle *second)
 {
 	t_data	*data;
@@ -22,13 +21,13 @@ int	take_dongles(t_coder *coder, t_dongle *first, t_dongle *second)
 	pthread_mutex_lock(&data->table_mutex);
 	coder->waiting = 1;
 	coder->granted = 0;
-	enqueue(first, second, &coder->request);
+	heap_push(&data->waiting_queue, &coder->request);
 	dispatch(data);
 	while (!coder->granted && !is_simulation_stopped(data))
 		pthread_cond_wait(&data->table_cond, &data->table_mutex);
 	if (!coder->granted)
 	{
-		dequeue(first, second, &coder->request);
+		heap_remove(&data->waiting_queue, coder->coder_id);
 		coder->waiting = 0;
 		pthread_mutex_unlock(&data->table_mutex);
 		return (0);

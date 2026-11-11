@@ -24,6 +24,13 @@ int	init_data(t_data *data)
 		free(data->coders);
 		return (0);
 	}
+	if (!init_heap(&data->waiting_queue, data->args.number_of_coders,
+			data->args.scheduler))
+	{
+		free(data->coders);
+		free(data->dongles);
+		return (0);
+	}
 	pthread_mutex_init(&data->stop_mutex, NULL);
 	pthread_mutex_init(&data->log_mutex, NULL);
 	pthread_mutex_init(&data->table_mutex, NULL);
@@ -41,12 +48,6 @@ int	init_dongles(t_data *data)
 		data->dongles[i].dongle_id = i + 1;
 		data->dongles[i].is_taken = 0;
 		data->dongles[i].cooldown_end_time = 0;
-		if (!init_heap(&data->dongles[i].queue, data->args.number_of_coders,
-				data->args.scheduler))
-		{
-			destroy_dongles(data, i);
-			return (0);
-		}
 		pthread_mutex_init(&data->dongles[i].dongle_mutex, NULL);
 		i++;
 	}
