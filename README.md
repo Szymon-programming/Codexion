@@ -1,3 +1,4 @@
+<img width="2752" height="1536" alt="codexion" src="https://github.com/user-attachments/assets/fb992a58-40d6-46fb-9f3f-e7ab0af64679" />
 _This project has been created as part of the 42 curriculum by schoinsk._
 
 # Codexion - @42Born2Code
