@@ -6,7 +6,7 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/10 11:45:46 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/11 12:53:53 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	init_data(t_data *data)
 	return (1);
 }
 
-int	init_dongles(t_data *data)
+void	init_dongles(t_data *data)
 {
 	int	i;
 
@@ -51,7 +51,6 @@ int	init_dongles(t_data *data)
 		pthread_mutex_init(&data->dongles[i].dongle_mutex, NULL);
 		i++;
 	}
-	return (1);
 }
 
 int	init_coders(t_data *data)

@@ -6,7 +6,7 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/07 00:08:39 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/11 12:43:02 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,7 @@ int	main(int argc, char *argv[])
 		return (1);
 	if (!init_data(&data))
 		return (1);
-	if (!init_dongles(&data))
-	{
-		free_data(&data);
-		return (1);
-	}
+	init_dongles(&data);
 	data.start_time = get_current_time_ms();
 	init_coders(&data);
 	start_simulation(&data);

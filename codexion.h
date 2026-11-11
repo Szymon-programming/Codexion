@@ -132,7 +132,7 @@ void		*coder_routine(void *arg);
 
 /* init data */
 int			init_data(t_data *data);
-int			init_dongles(t_data *data);
+void		init_dongles(t_data *data);
 int			init_coders(t_data *data);
 
 /* cleaning data before program end */
