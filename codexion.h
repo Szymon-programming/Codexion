@@ -6,7 +6,7 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/10/21 21:48:08 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/17 16:18:39 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-/* 64-bit milliseconds: plain long is 32-bit on MinGW and wraps */
 typedef long long	t_ms;
 
 typedef enum e_scheduler

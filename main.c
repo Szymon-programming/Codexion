@@ -6,7 +6,7 @@
 /*   By: schoinsk <schoinsk@student.42warsaw.pl>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 21:48:08 by schoinsk          #+#    #+#             */
-/*   Updated: 2026/11/11 12:43:02 by schoinsk         ###   ########.fr       */
+/*   Updated: 2026/11/17 16:19:03 by schoinsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,3 +33,4 @@ int	main(int argc, char *argv[])
 	cleanup(&data);
 	return (0);
 }
+//./codexion 5 3000 200 200 200 10 800 edf
