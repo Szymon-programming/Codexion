@@ -28,7 +28,7 @@ static void	grant(t_coder *coder, t_dongle *first, t_dongle *second)
 	pthread_cond_broadcast(&coder->data->table_cond);
 }
 
-static void	try_grant(t_coder *coder, long now)
+static void	try_grant(t_coder *coder, t_ms now)
 {
 	t_dongle	*first;
 	t_dongle	*second;
@@ -60,7 +60,7 @@ void	dispatch(t_data *data)
 {
 	t_heap_node	*top;
 	t_coder		*coder;
-	long		now;
+	t_ms		now;
 
 	now = get_current_time_ms();
 	top = heap_peek(&data->waiting_queue);

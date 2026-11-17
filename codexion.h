@@ -20,6 +20,9 @@
 # include <sys/time.h>
 # include <unistd.h>
 
+/* 64-bit milliseconds: plain long is 32-bit on MinGW and wraps */
+typedef long long	t_ms;
+
 typedef enum e_scheduler
 {
 	FIFO,
@@ -41,8 +44,8 @@ typedef struct s_arguments
 typedef struct s_heap_node
 {
 	int		coder_id;
-	long	request_time;
-	long	deadline;
+	t_ms	request_time;
+	t_ms	deadline;
 }	t_heap_node;
 
 typedef struct s_heap
@@ -57,7 +60,7 @@ typedef struct s_dongle
 {
 	int				dongle_id;
 	int				is_taken;
-	long			cooldown_end_time;
+	t_ms			cooldown_end_time;
 	pthread_mutex_t	dongle_mutex;
 }	t_dongle;
 
@@ -67,7 +70,7 @@ typedef struct s_coder
 	pthread_t		thread;
 	t_dongle		*left_dongle;
 	t_dongle		*right_dongle;
-	long			last_compile_start;
+	t_ms			last_compile_start;
 	int				compiles_count;
 	pthread_mutex_t	state_mutex;
 	struct s_data	*data;
@@ -80,7 +83,7 @@ typedef struct s_coder
 typedef struct s_data
 {
 	t_arguments		args;
-	long			start_time;
+	t_ms			start_time;
 	t_coder			*coders;
 	t_dongle		*dongles;
 	pthread_t		monitor_thread;
@@ -109,8 +112,8 @@ int			heap_pop(t_heap *heap);
 int			heap_remove(t_heap *heap, int coder_id);
 
 /* time */
-long		get_current_time_ms(void);
-void		precise_usleep(long sleep_time_ms, t_data *data);
+t_ms		get_current_time_ms(void);
+void		precise_usleep(t_ms sleep_time_ms, t_data *data);
 
 /* simulation */
 int			start_simulation(t_data *data);
@@ -122,7 +125,7 @@ void		select_dongle(t_coder *coder, t_dongle **first, t_dongle **second);
 void		init_node_request(t_coder *coder, t_heap_node *node);
 int			take_dongles(t_coder *coder, t_dongle *first, t_dongle *second);
 void		dispatch(t_data *data);
-int			dongle_usable(t_dongle *dongle, long now);
+int			dongle_usable(t_dongle *dongle, t_ms now);
 int			blocked_by_better(t_data *data, t_coder *coder);
 void		release_dongle(t_coder *coder, t_dongle *dongle);
 

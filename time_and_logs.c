@@ -12,21 +12,21 @@
 
 #include "codexion.h"
 
-static long	get_elapsed_time_ms(long start_time)
+static t_ms	get_elapsed_time_ms(t_ms start_time)
 {
-	long	current;
+	t_ms	current;
 
 	current = get_current_time_ms();
 	return (current - start_time);
 }
 
-long	get_current_time_ms(void)
+t_ms	get_current_time_ms(void)
 {
 	struct timeval	tv;
-	long			sum;
+	t_ms			sum;
 
 	gettimeofday(&tv, NULL);
-	sum = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	sum = ((t_ms)tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	return (sum);
 }
 
@@ -40,9 +40,9 @@ int	is_simulation_stopped(t_data *data)
 	return (is_stopped);
 }
 
-void	precise_usleep(long sleep_time_ms, t_data *data)
+void	precise_usleep(t_ms sleep_time_ms, t_data *data)
 {
-	long	sleep_start;
+	t_ms	sleep_start;
 
 	sleep_start = get_current_time_ms();
 	while (!is_simulation_stopped(data))
@@ -55,13 +55,13 @@ void	precise_usleep(long sleep_time_ms, t_data *data)
 
 void	print_log(t_coder *coder, char *status)
 {
-	long	timestamp;
+	t_ms	timestamp;
 
 	pthread_mutex_lock(&coder->data->log_mutex);
 	if (!is_simulation_stopped(coder->data))
 	{
 		timestamp = get_elapsed_time_ms(coder->data->start_time);
-		printf("%ld %d %s\n", timestamp, coder->coder_id, status);
+		printf("%lld %d %s\n", timestamp, coder->coder_id, status);
 	}
 	pthread_mutex_unlock(&coder->data->log_mutex);
 }

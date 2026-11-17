@@ -12,7 +12,7 @@
 
 #include "codexion.h"
 
-int	dongle_usable(t_dongle *dongle, long now)
+int	dongle_usable(t_dongle *dongle, t_ms now)
 {
 	return (!dongle->is_taken && dongle->cooldown_end_time <= now);
 }

@@ -14,7 +14,7 @@
 
 static int	check_coder_burnout(t_data *data, int i)
 {
-	long	last_compile;
+	t_ms	last_compile;
 
 	pthread_mutex_lock(&data->coders[i].state_mutex);
 	last_compile = data->coders[i].last_compile_start;
